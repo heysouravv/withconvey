@@ -2,12 +2,13 @@
 
 import { useState, useEffect, useRef } from "react"
 import { Button } from "@/components/ui/button"
-import { ArrowRight, MessageCircle } from "lucide-react"
+import { ArrowRight, MapPin, Clock, CheckCircle } from "lucide-react"
 
 export default function AppleInspiredWithConvey() {
   const [visibleElements, setVisibleElements] = useState<Set<number>>(new Set())
   const [chatStep, setChatStep] = useState(0)
   const [isTyping, setIsTyping] = useState(false)
+  const [typingSide, setTypingSide] = useState<"customer" | "agent">("agent")
   const [scrollY, setScrollY] = useState(0)
   const chatRef = useRef<HTMLDivElement>(null)
   const headerRef = useRef<HTMLDivElement>(null)
@@ -22,6 +23,11 @@ export default function AppleInspiredWithConvey() {
       hasImage: true,
     },
     { type: "customer", text: "Perfect." },
+    {
+      type: "agent",
+      text: "Order confirmed! Based on your schedule, I'll deliver to your office (123 Main St) tomorrow at 2:30 PM. Sound good?",
+      isOrderConfirmed: true,
+    },
   ]
 
   useEffect(() => {
@@ -71,7 +77,11 @@ export default function AppleInspiredWithConvey() {
     const animateNext = () => {
       if (step >= chatMessages.length) return
 
+      // Determine typing side based on next message
+      const nextMessage = chatMessages[step]
+      setTypingSide(nextMessage.type as "customer" | "agent")
       setIsTyping(true)
+
       setTimeout(() => {
         setIsTyping(false)
         setChatStep(step + 1)
@@ -129,10 +139,10 @@ export default function AppleInspiredWithConvey() {
         </div>
       </header>
 
-      {/* Narrative Content */}
-      <div className="max-w-3xl mx-auto px-6 pb-32">
+      {/* Main Content Container */}
+      <div className="max-w-3xl mx-auto px-6">
         {/* The Problem */}
-        <div className="py-24">
+        <section className="py-24">
           <div
             data-reveal="2"
             className={`transition-all duration-1200 ease-out ${
@@ -159,10 +169,10 @@ export default function AppleInspiredWithConvey() {
               </p>
             </div>
           </div>
-        </div>
+        </section>
 
         {/* The Vision */}
-        <div className="py-24">
+        <section className="py-24">
           <div
             data-reveal="3"
             className={`transition-all duration-1200 ease-out ${
@@ -194,10 +204,10 @@ export default function AppleInspiredWithConvey() {
               </p>
             </div>
           </div>
-        </div>
+        </section>
 
         {/* How It Works */}
-        <div className="py-24">
+        <section className="py-24">
           <div
             data-reveal="4"
             className={`transition-all duration-1000 ease-out ${
@@ -232,6 +242,27 @@ export default function AppleInspiredWithConvey() {
                         }`}
                       >
                         {message.text}
+
+                        {/* Order Confirmed Enhancement */}
+                        {message.isOrderConfirmed && (
+                          <div className="mt-3 pt-3 border-t border-gray-200 space-y-2">
+                            <div className="flex items-center gap-2 text-green-700">
+                              <CheckCircle className="w-4 h-4" />
+                              <span className="text-xs font-semibold">Order Confirmed</span>
+                            </div>
+                            <div className="space-y-1">
+                              <div className="flex items-center gap-2 text-xs text-gray-600">
+                                <MapPin className="w-3 h-3" />
+                                <span>123 Main St (Office)</span>
+                              </div>
+                              <div className="flex items-center gap-2 text-xs text-gray-600">
+                                <Clock className="w-3 h-3" />
+                                <span>Tomorrow, 2:30 PM</span>
+                              </div>
+                            </div>
+                            <div className="text-xs text-gray-500 italic">*Based on your schedule & preferences</div>
+                          </div>
+                        )}
                       </div>
                     </div>
 
@@ -260,17 +291,35 @@ export default function AppleInspiredWithConvey() {
                     )}
                   </div>
                 ))}
+
+                {/* Typing Indicator - Positioned Based on Message Side */}
                 {isTyping && (
-                  <div className="flex justify-start animate-fade-in">
-                    <div className="bg-gray-100 text-gray-800 px-4 py-3 rounded-2xl rounded-bl-md">
+                  <div
+                    className={`flex ${typingSide === "customer" ? "justify-end" : "justify-start"} animate-fade-in`}
+                  >
+                    <div
+                      className={`px-4 py-3 rounded-2xl ${
+                        typingSide === "customer"
+                          ? "bg-blue-600 text-white rounded-br-md"
+                          : "bg-gray-100 text-gray-800 rounded-bl-md"
+                      }`}
+                    >
                       <div className="flex space-x-1">
-                        <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce-gentle"></div>
                         <div
-                          className="w-2 h-2 bg-gray-400 rounded-full animate-bounce-gentle"
+                          className={`w-2 h-2 rounded-full animate-bounce-gentle ${
+                            typingSide === "customer" ? "bg-white" : "bg-gray-400"
+                          }`}
+                        ></div>
+                        <div
+                          className={`w-2 h-2 rounded-full animate-bounce-gentle ${
+                            typingSide === "customer" ? "bg-white" : "bg-gray-400"
+                          }`}
                           style={{ animationDelay: "0.1s" }}
                         ></div>
                         <div
-                          className="w-2 h-2 bg-gray-400 rounded-full animate-bounce-gentle"
+                          className={`w-2 h-2 rounded-full animate-bounce-gentle ${
+                            typingSide === "customer" ? "bg-white" : "bg-gray-400"
+                          }`}
                           style={{ animationDelay: "0.2s" }}
                         ></div>
                       </div>
@@ -280,10 +329,10 @@ export default function AppleInspiredWithConvey() {
               </div>
             </div>
           </div>
-        </div>
+        </section>
 
         {/* The Intelligence */}
-        <div className="py-24">
+        <section className="py-24">
           <div
             data-reveal="6"
             className={`transition-all duration-1200 ease-out ${
@@ -315,10 +364,10 @@ export default function AppleInspiredWithConvey() {
               </p>
             </div>
           </div>
-        </div>
+        </section>
 
         {/* Product Intelligence */}
-        <div className="py-24">
+        <section className="py-24">
           <div
             data-reveal="7"
             className={`transition-all duration-1200 ease-out ${
@@ -360,10 +409,10 @@ export default function AppleInspiredWithConvey() {
               connects to your broader lifestyle and preferences.
             </p>
           </div>
-        </div>
+        </section>
 
         {/* Cross-Brand Magic */}
-        <div className="py-24">
+        <section className="py-24">
           <div
             data-reveal="8"
             className={`transition-all duration-1200 ease-out ${
@@ -396,10 +445,10 @@ export default function AppleInspiredWithConvey() {
               </p>
             </div>
           </div>
-        </div>
+        </section>
 
         {/* The Transformation */}
-        <div className="py-24">
+        <section className="py-24">
           <div
             data-reveal="9"
             className={`transition-all duration-1200 ease-out ${
@@ -431,10 +480,10 @@ export default function AppleInspiredWithConvey() {
               handles it all. While others chase metrics, you build relationships.
             </p>
           </div>
-        </div>
+        </section>
 
         {/* The Future */}
-        <div className="py-24">
+        <section className="py-24">
           <div
             data-reveal="10"
             className={`transition-all duration-1200 ease-out ${
@@ -465,52 +514,78 @@ export default function AppleInspiredWithConvey() {
               </p>
             </div>
           </div>
-        </div>
+        </section>
 
-        {/* Call to Action */}
-        <div className="py-32">
+        {/* Brand Partnership CTA */}
+        <section className="py-24">
           <div
             data-reveal="11"
-            className={`text-center transition-all duration-1200 ease-out ${
-              visibleElements.has(11) ? "opacity-100 translate-y-0 scale-100" : "opacity-0 translate-y-12 scale-95"
+            className={`transition-all duration-1200 ease-out ${
+              visibleElements.has(11) ? "opacity-100 translate-y-0" : "opacity-0 translate-y-12"
             }`}
           >
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-8 leading-tight apple-font-display animate-text-reveal">
-              Ready to transform your commerce?
+            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-12 leading-tight apple-font-display">
+              <span className="inline-block animate-text-reveal">Ready to transform</span>
+              <br />
+              <span className="inline-block animate-text-reveal text-gray-600" style={{ animationDelay: "0.3s" }}>
+                your brand?
+              </span>
             </h2>
-            <p
-              className="text-lg font-semibold text-gray-600 mb-12 leading-relaxed apple-font-text animate-fade-in-up"
-              style={{ animationDelay: "0.3s" }}
-            >
-              Join the conversation revolution and discover what happens when shopping becomes as natural as talking to
-              a friend.
-            </p>
-            <div className="space-y-4">
-              <Button
-                size="lg"
-                className="bg-gray-900 hover:bg-gray-800 text-white font-semibold px-12 py-4 rounded-full border-0 text-lg apple-font-text transition-all duration-300 ease-out hover:scale-105 hover:shadow-lg animate-button-float metal-shine-button"
+            <div className="space-y-8">
+              <p
+                className="text-xl font-medium text-gray-600 leading-relaxed apple-font-text animate-fade-in-up"
                 style={{ animationDelay: "0.6s" }}
               >
-                Start the Conversation
-                <ArrowRight className="ml-3 h-5 w-5 transition-transform duration-300 group-hover:translate-x-1" />
-              </Button>
-              <div>
-                <Button
-                  variant="ghost"
-                  className="text-gray-500 hover:text-gray-700 font-semibold text-lg apple-font-text transition-all duration-300 hover:scale-105 animate-fade-in-up"
-                  style={{ animationDelay: "0.8s" }}
-                >
-                  <MessageCircle className="mr-2 h-5 w-5 transition-transform duration-300 hover:rotate-12" />
-                  See How It Works
-                </Button>
+                Join forward-thinking brands creating deeper customer connections through{" "}
+                <span className="highlight-blue">intelligent conversation</span>. Transform every interaction into an
+                opportunity for meaningful engagement and growth.
+              </p>
+              <div className="grid md:grid-cols-3 gap-8 animate-fade-in-up" style={{ animationDelay: "0.8s" }}>
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-gray-900 mb-2 apple-font-display">
+                    <span className="highlight-blue">85%</span>
+                  </div>
+                  <p className="text-sm font-medium text-gray-600 apple-font-text">Higher conversions</p>
+                </div>
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-gray-900 mb-2 apple-font-display">
+                    <span className="highlight-green">150+</span>
+                  </div>
+                  <p className="text-sm font-medium text-gray-600 apple-font-text">Data points per conversation</p>
+                </div>
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-gray-900 mb-2 apple-font-display">
+                    <span className="highlight-purple">24hrs</span>
+                  </div>
+                  <p className="text-sm font-medium text-gray-600 apple-font-text">Setup time</p>
+                </div>
+              </div>
+              <div className="text-center animate-fade-in-up" style={{ animationDelay: "1s" }}>
+                <p className="text-sm text-gray-400 apple-font-text mb-8">Waiting for you to connect.</p>
+                <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+                  <Button
+                    size="lg"
+                    className="bg-gray-900 hover:bg-gray-800 text-white font-semibold px-10 py-3 rounded-full border-0 apple-font-text transition-all duration-300 ease-out hover:scale-105 hover:shadow-lg metal-shine-button group"
+                  >
+                    Start Partnership
+                    <ArrowRight className="ml-2 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="lg"
+                    className="text-gray-600 hover:text-gray-900 font-semibold apple-font-text transition-all duration-300 hover:scale-105"
+                  >
+                    View Demo
+                  </Button>
+                </div>
               </div>
             </div>
           </div>
-        </div>
+        </section>
       </div>
 
       {/* Minimal Footer */}
-      <footer className="py-16 px-6 border-t border-gray-200">
+      <footer className="py-16 px-6 border-t border-gray-200 bg-gray-50">
         <div className="max-w-3xl mx-auto text-center">
           <div className="w-16 h-px bg-gray-300 mx-auto mb-6 animate-expand"></div>
           <p className="text-sm font-medium text-gray-400 tracking-wide apple-font-text animate-fade-in">
